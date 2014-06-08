@@ -243,8 +243,22 @@ public:
 	}
 };
 
-int main()
+int main(int argc,char *argv[])
 {
+	string configFilePath = "config.txt";
+	if (argc == 2)
+	{
+		//assume this is the file config
+		configFilePath = argv[1];
+	}
+	
+	ifstream configFile(configFilePath);
+	if (!configFile.is_open()) 
+	{
+		cerr << "Error: Configuration file could not be opened." << endl;
+		return 0;
+	}
+
 	try
 	{
 		ulong memSize, numChips;
@@ -254,8 +268,8 @@ int main()
 		ulong l3CacheSize = 0;
 		ulong l3CacheAccessSpeed = 0;
 		ulong cacheLineSize = 0;
-		string command = getUntilDelim(cin, '(');
-		string argument = getUntilDelim(cin, ')');
+		string command = getUntilDelim(configFile, '(');
+		string argument = getUntilDelim(configFile, ')');
 		
 		vector<string> arguments = parseSize(argument);
 
@@ -270,14 +284,14 @@ int main()
 		else if(arguments[1] == "GB")
 			memSize <<= 20;	
 		
-		command = getUntilDelim(cin, '(');
+		command = getUntilDelim(configFile, '(');
 		if(command != "numOfChips" && command != "numOfCores")
 			throw invalid_argument("Error: Second command must be numOfChips() or numOfCores()");
 		if(command == "numOfChips")
 		{
-			argument = getUntilDelim(cin, ')');
+			argument = getUntilDelim(configFile, ')');
 			numChips = strtoul(argument.c_str(), NULL, 0);		
-			command = getUntilDelim(cin, '(');
+			command = getUntilDelim(configFile, '(');
 		}
 		else
 		{
@@ -292,7 +306,7 @@ int main()
 		{
 			if(command != "numOfCores")
 				throw invalid_argument("Error: Expected numOfCores()");
-			arguments = splitUntilDelim(cin, ',', ')');
+			arguments = splitUntilDelim(configFile, ',', ')');
 			if(arguments.size() == 1)
 			{
 				//all chips have same core #
@@ -311,13 +325,13 @@ int main()
 			{
 				throw invalid_argument("Error: Usage is: numOfCores([<chip_idx>,] <size>)");
 			}
-			command = getUntilDelim(cin, '(');
+			command = getUntilDelim(configFile, '(');
 		}
 		
 		while(isInit(command))
 		{
 			//cout << command << endl;
-			arguments = splitUntilDelim(cin, ',', ')');
+			arguments = splitUntilDelim(configFile, ',', ')');
 			
 			if(command == "cacheLineSize")
 			{
@@ -395,7 +409,7 @@ int main()
 			{
 				memoryAccessSpeed = parseSpeed(arguments, command);
 			}			
-			command = getUntilDelim(cin, '(');
+			command = getUntilDelim(configFile, '(');
 		}
 		
 		//TODO: check to make sure inits are non-zero
@@ -413,7 +427,10 @@ int main()
 		{
 			l2Caches.push_back(Cache(cacheSizes[i] / cacheLineSize));
 		}
-		
+
+		//configuration is loaded, switch back to grabbing input from cin.
+		command = getUntilDelim(cin, '(');
+
 		while(cin.good())
 		{
 			cout << command << "(";

@@ -1,0 +1,8 @@
+memorySize(1GB)
+numOfCores(2)
+cacheLineSize(512B)
+cacheSize(2KB)
+cacheAccessSpeed(2ns)
+replacementSpeed(1ns)
+broadcastSpeed(2ns)
+memoryAccessSpeed(20ns)
