@@ -11,6 +11,7 @@ struct page
 	cacheState state;
 	
 	page(ulong address, cacheState initialState) : addr(address), state(initialState) {}
+	page(){}
 };
 
 class Cache
@@ -19,7 +20,7 @@ public:
 	ulong cacheSize_;
 	ulong blockSize_;
 	ulong currentSize_;
-	ulong hitCount, missCount, readCount, writeCount, memWriteCount;
+	ulong hitCount, missCount, readCount, writeCount, memWriteCount, memReadCount;
 	Cache *upperCache;
 	Cache *lowerCache;
 	Cache(ulong cacheSize, ulong blockSize) : cacheSize_(cacheSize), blockSize_(blockSize) {}
@@ -32,8 +33,9 @@ public:
 	{
 		lowerCache = cache;
 	}
-	
-	virtual void read(ulong address) {}
-	virtual void write(ulong address) {}	
-	virtual void instruction_fetch(ulong address) {} //this may be unused
+	virtual void insert(ulong , cacheState ) {}
+	virtual void evict(ulong ) {}
+	virtual void read(ulong ) {}
+	virtual void write(ulong ) {}	
+	virtual void instruction_fetch(ulong ) {} //this may be unused
 };
