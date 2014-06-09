@@ -70,7 +70,7 @@ std::vector<std::string> splitUntilDelim(T &stream, char split, char delim)
 	return arguments;
 }
 
-std::vector<std::string> splitDirectory(std::string &str, bool &relativePath)
+inline std::vector<std::string> splitDirectory(std::string &str, bool &relativePath)
 {
 	std::stringstream stream(str);
 	char c = trimWhitespace(stream);
@@ -125,7 +125,7 @@ std::string getUntilDelim(T &stream, char delim)
 	return word;
 }
 
-std::vector<std::string> parseSize(const std::string &str)
+inline std::vector<std::string> parseSize(const std::string &str)
 {
 	std::stringstream stream(str);
 	char c = trimWhitespace(stream);
