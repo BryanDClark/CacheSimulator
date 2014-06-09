@@ -3,12 +3,12 @@
 
 using namespace std;
 
-class DBDCache : public LRUCache
+class DeadBlockLRUCache : public LRUCache
 {
 public:
 	const unsigned int MaxMiss = 3;
 	std::map<ulong, ulong> accessCounter;
-	DBDCache(ulong cacheSize, ulong blockSize) : LRUCache(cacheSize, blockSize) {}
+	DeadBlockLRUCache(ulong cacheSize, ulong blockSize) : LRUCache(cacheSize, blockSize) {}
 
 	void onMiss(ulong address)
 	{
