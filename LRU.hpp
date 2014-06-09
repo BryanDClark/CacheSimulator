@@ -13,7 +13,7 @@ struct pageNode
 
 class LRUCache : public Cache
 {
-private:
+protected:
 	pageNode *pageHead;
 	pageNode *pageTail;
 	
@@ -61,7 +61,7 @@ public:
 		delete replacedPage;
 	}
 	
-	void insert(ulong address, cacheState state)
+	virtual void insert(ulong address, cacheState state)
 	{
 		pageNode *newPage = new pageNode(address, state);
 		newPage->next = pageHead;

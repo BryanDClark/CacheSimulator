@@ -1,72 +1,80 @@
-#include "cache.hpp"
+#include "LRU.hpp"
 #include <map>
-#include <list>
 
 using namespace std;
 
-class DBDCache : public Cache
+class DBDCache : public LRUCache
 {
 public:
-	std::map<ulong, std::list<page>::iterator> pageTable;
-	std::list<page> pageQueue;
+	const unsigned int MaxMiss = 3;
 	std::map<ulong, ulong> accessCounter;
-	DBDCache(ulong cacheSize, ulong blockSize) : Cache(cacheSize, blockSize) {}
-	void replace(ulong address, cacheState state)
+	DBDCache(ulong cacheSize, ulong blockSize) : LRUCache(cacheSize, blockSize) {}
+
+	void onMiss(ulong address)
 	{
-		if(pageTable.find(address) == pageTable.end())
+		if (accessCounter.find(address) != accessCounter.end()) 
+			accessCounter[address]++;
+		else
+			accessCounter[address] = 1;
+	}
+
+	void onHit(ulong address)
+	{
+		if (accessCounter.find(address) != accessCounter.end()) 
+			accessCounter[address]--;
+		else
+			accessCounter[address] = 0;		
+	}
+
+	bool isDeadBlock(ulong address)
+	{
+		return accessCounter.find(address) != accessCounter.end() && accessCounter[address] > MaxMiss;
+	}
+
+	void insert(ulong address, cacheState state)
+	{
+		//if counter has reached MaxMiss threshold, don't bother caching it
+		if (cacheSize_ == currentSize_ && isDeadBlock(address))
+			return;
+
+		pageNode *newPage = new pageNode(address, state);
+		newPage->next = pageHead;
+		pageTable[address] = newPage;
+
+		if(cacheSize_ == currentSize_)
 		{
-			//not currently in the cache
-			missCount++;
-
-			page newPage(address, state);
-			pageQueue.push_front(newPage);
-			pageTable[address] = pageQueue.begin();	
-			if(cacheSize_ == currentSize_)
+			//something has to be replaced
+			//before doing LRU, see if any blocks are considered dead.
+			bool foundDeadBlock = false;
+			pageNode *current = pageHead;
+			while (current != NULL)
 			{
-				//something has to be replaced
-				auto iter = pageQueue.end();
-				//check if this entry has been cached before and used only once
-				//if so, don't bother caching it
-				if(accessCounter.find(address) != accessCounter.end() && accessCounter[address] == 1)
-					iter = pageQueue.begin();
-				//re(set) the counter for the address to 1
-				accessCounter[address] = 1;
-
-				pageTable.erase(iter->addr);
-				if(iter->state == 'M')
+				if ((foundDeadBlock = isDeadBlock(current->thisPage.addr)))
 				{
-					//messy state, need to writeback
-					if(upperCache)
-						upperCache->write(iter->addr);
-					else
-						memWriteCount++;
+					evict(current->thisPage.addr);
+					break;
 				}
-				pageQueue.erase(iter);
+				current = current->next;
 			}
+			if (!foundDeadBlock)
+			{
+				//no dead blocks, fallback to LRU
+				evict(pageTail->thisPage.addr);	
+			}
+			pageHead->prev = newPage;
+			pageHead = newPage;		
 		}
 		else
 		{
-			hitCount++;
-			auto iter = pageTable[address];
-			page accessedPage = *iter;
-			pageQueue.erase(iter);
-			pageQueue.push_front(accessedPage);
-
-			if (accessCounter.find(address) != accessCounter.end()) 
-				accessCounter[address]++;
+			if(pageHead == NULL)
+			{
+				pageHead = pageTail = newPage;
+			}
 			else
-				accessCounter[address] = 1;
-			//off-hand, I'm not sure how we'd get in that else clause state
+			{
+				pageHead->prev = newPage;
+				pageHead = newPage;	
+			}				
 		}
-	}
-	void read(ulong address)
-	{
-		readCount++;
-		replace(address, CLEAN);
-	}
-	void write(ulong address)
-	{
-		writeCount++;
-		replace(address, MESSY);
 	}
 };
