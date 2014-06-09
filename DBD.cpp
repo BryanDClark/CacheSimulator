@@ -37,44 +37,18 @@ public:
 		if (cacheSize_ == currentSize_ && isDeadBlock(address))
 			return;
 
-		pageNode *newPage = new pageNode(address, state);
-		newPage->next = pageHead;
-		pageTable[address] = newPage;
-
 		if(cacheSize_ == currentSize_)
 		{
-			//something has to be replaced
-			//before doing LRU, see if any blocks are considered dead.
-			bool foundDeadBlock = false;
-			pageNode *current = pageHead;
-			while (current != NULL)
+			//before doing LRU, pull out a dead block.
+			for (map<ulong, pageNode*>::iterator it = pageTable.begin(); it != pageTable.end(); ++it)
 			{
-				if ((foundDeadBlock = isDeadBlock(current->thisPage.addr)))
+				if (isDeadBlock(it->first))
 				{
-					evict(current->thisPage.addr);
+					evict(it->first);
 					break;
 				}
-				current = current->next;
 			}
-			if (!foundDeadBlock)
-			{
-				//no dead blocks, fallback to LRU
-				evict(pageTail->thisPage.addr);	
-			}
-			pageHead->prev = newPage;
-			pageHead = newPage;		
 		}
-		else
-		{
-			if(pageHead == NULL)
-			{
-				pageHead = pageTail = newPage;
-			}
-			else
-			{
-				pageHead->prev = newPage;
-				pageHead = newPage;	
-			}				
-		}
+		LRUCache::insert(address, state);
 	}
 };
