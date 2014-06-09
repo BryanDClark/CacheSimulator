@@ -31,24 +31,11 @@ public:
 		return accessCounter.find(address) != accessCounter.end() && accessCounter[address] > MaxMiss;
 	}
 
-	void insert(ulong address, cacheState state)
+	void read(ulong address)
 	{
-		//if counter has reached MaxMiss threshold, don't bother caching it
-		if (cacheSize_ == currentSize_ && isDeadBlock(address))
-			return;
-
-		if(cacheSize_ == currentSize_)
-		{
-			//before doing LRU, pull out a dead block.
-			for (map<ulong, pageNode*>::iterator it = pageTable.begin(); it != pageTable.end(); ++it)
-			{
-				if (isDeadBlock(it->first))
-				{
-					evict(it->first);
-					break;
-				}
-			}
-		}
-		LRUCache::insert(address, state);
+	    if (isDeadBlock(address))
+	        upperCache->read(address);
+	    else
+	        LRUCache::read(address);
 	}
 };
