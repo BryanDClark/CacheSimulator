@@ -121,6 +121,8 @@ public:
 			onHit(address, state);
 			//std::cout << "afterhit" << std::endl;
 			pageNode *accessedPage = pageTable[address];
+			if(state == MESSY)
+				accessedPage->thisPage.state = state;
 			if(accessedPage != pageHead)
 			{
 				if(accessedPage == pageTail)
