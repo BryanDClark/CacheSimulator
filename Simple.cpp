@@ -75,7 +75,8 @@ public:
 		page replacedPage = pageVector[index];
 		//no need to erase from the vector; this is a swap
 		pageTable.erase(replacedPage.addr);		
-		handleEviction(upperCache, lowerCache, replacedPage);		
+		handleEviction(upperCache, lowerCache, replacedPage);
+		currentSize_--;	
 	}
 
 	void insert(ulong address, cacheState state)
@@ -94,6 +95,7 @@ public:
 		{
 			pageVector.push_back(newPage);			
 		}
+		currentSize_++;
 	}
 };
 
@@ -110,7 +112,8 @@ public:
 		page replacedPage = pageQueue.front();
 		pageQueue.pop();		
 		pageTable.erase(replacedPage.addr);		
-		handleEviction(upperCache, lowerCache, replacedPage);		
+		handleEviction(upperCache, lowerCache, replacedPage);
+		currentSize_--;		
 	}
 
 	void insert(ulong address, cacheState state)
@@ -124,5 +127,6 @@ public:
 			evict(0);
 		}
 		pageQueue.push(newPage);
+		currentSize_++;
 	}
 };
