@@ -1,5 +1,7 @@
+#ifndef EXCLUSIVE
+#define EXCLUSIVE
+
 #include "LRU.hpp"
-#include <map>
 
 class L1Exclusive : public LRUCache
 {
@@ -74,5 +76,4 @@ public:
 	}
 };
 
-int main()
-{}
+#endif

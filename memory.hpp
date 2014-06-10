@@ -1,7 +1,11 @@
+#ifndef MEMORY
+#define MEMORY
+
 #include "cache.hpp"
 
 class Memory : public Cache
 {
+public:
 	void read(ulong )
 	{
 		readCount++;
@@ -10,4 +14,6 @@ class Memory : public Cache
 	{
 		writeCount++;
 	}
-}
+};
+
+#endif

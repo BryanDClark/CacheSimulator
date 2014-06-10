@@ -1,3 +1,6 @@
+#ifndef CACHE
+#define CACHE
+
 typedef unsigned long ulong;
 
 enum cacheState {
@@ -24,6 +27,7 @@ public:
 	Cache *upperCache;
 	Cache *lowerCache;
 	Cache(ulong cacheSize, ulong blockSize) : cacheSize_(cacheSize), blockSize_(blockSize) {}
+	Cache() {}
 	
 	void setUpperCache(Cache *cache)
 	{
@@ -40,3 +44,5 @@ public:
 	virtual void write(ulong ) {}	
 	virtual void instruction_fetch(ulong ) {} //this may be unused
 };
+
+#endif

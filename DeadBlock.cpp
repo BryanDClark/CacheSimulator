@@ -1,3 +1,6 @@
+#ifndef DEADBLOCK
+#define DEADBLOCK
+
 #include "LRU.hpp"
 #include <map>
 
@@ -54,5 +57,4 @@ public:
 	}
 };
 
-int main()
-{}
+#endif

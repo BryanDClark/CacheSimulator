@@ -1,3 +1,6 @@
+#ifndef LRU
+#define LRU
+
 #include "cache.hpp"
 #include <map>
 
@@ -139,3 +142,5 @@ public:
 		replace(address, MESSY);
 	}
 };
+
+#endif
