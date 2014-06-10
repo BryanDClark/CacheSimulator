@@ -4,8 +4,6 @@
 #include "LRU.hpp"
 #include <map>
 
-using namespace std;
-
 class DeadBlockLRUCache : public LRUCache
 {
 public:

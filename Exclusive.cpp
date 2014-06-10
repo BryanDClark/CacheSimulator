@@ -45,7 +45,7 @@ class L2Exclusive : public LRUCache
 {
 public:
 	L2Exclusive(ulong cacheSize, ulong blockSize) : LRUCache(cacheSize, blockSize) {}
-	void read(ulong address)
+	virtual void read(ulong address)
 	{
 		if(!inCache(address))
 		{
@@ -60,7 +60,7 @@ public:
 			lowerCache->insert(address, CLEAN);
 		}
 	}
-	void write(ulong address)
+	virtual void write(ulong address)
 	{
 		if(pageTable.find(address) == pageTable.end())
 		{
@@ -76,4 +76,17 @@ public:
 	}
 };
 
+class L2ExclusivePrefetch : public L2Exclusive
+{
+public:
+	L2ExclusivePrefetch(ulong cacheSize, ulong blockSize) : L2Exclusive(cacheSize, blockSize) {}
+	void read(ulong address)
+	{
+		bool cacheFound = inCache(address);
+		L2Exclusive::read(address);
+		//for prefetch, we grab the next cache line to prepare for L1
+		if(cacheFound)
+			replace(address+blockSize_, CLEAN);
+	}
+};
 #endif
