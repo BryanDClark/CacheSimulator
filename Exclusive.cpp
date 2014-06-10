@@ -86,7 +86,10 @@ public:
 		L2Exclusive::read(address);
 		//for prefetch, we grab the next cache line to prepare for L1
 		if(cacheFound)
-			replace(address+blockSize_, CLEAN);
+		{
+			upperCache->read(address+blockSize_);
+			insert(address+blockSize_, CLEAN);
+		}
 	}
 };
 #endif
