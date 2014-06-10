@@ -1,3 +1,6 @@
+#ifndef SIMPLE
+#define SIMPLE
+
 #include "cache.hpp"
 #include <map>
 #include <vector>
@@ -130,3 +133,5 @@ public:
 		currentSize_++;
 	}
 };
+
+#endif

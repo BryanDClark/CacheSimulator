@@ -1,7 +1,7 @@
 #include "LRU.hpp"
 #include "memory.hpp"
 #include "Exclusive.cpp"
-#include "DeadBlock.cpp"
+#include "deadblock.hpp"
 #include <iostream>
 #include "config.hpp"
 

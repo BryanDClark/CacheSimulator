@@ -155,7 +155,7 @@ int main(int argc,char *argv[])
 	{
 		//initialize the simulator
 		Config config;
-		config.initialize(argc, argv);
+		config.initialize(argc, argv, false);
 
 		//hackish, but create some local vars to ease the refactoring
 		//ulong memSize = config.memSize;
