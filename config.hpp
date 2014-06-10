@@ -13,7 +13,7 @@ public:
 	ulong memoryAccessSpeed;
 	ulong l3CacheSize;
 	ulong l3CacheAccessSpeed;
-	ulong cacheLineSize;
+	ulong cacheLineSize, blockSize;
 
 	ulong* numCores;
 	ulong* cacheSizes;
@@ -26,7 +26,7 @@ public:
 	ulong L3CacheSize;
 	ulong L3BlockSize;
 
-	void initialize(int argc,char *argv[]);
+	void initialize(int argc,char *argv[], bool skipPremamble = true);
 
 private:
 	bool isInit(std::string command);
