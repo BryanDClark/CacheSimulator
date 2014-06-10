@@ -13,7 +13,8 @@
 
 using namespace std;
 
-string cacheSizeError = "Error: Usage is: cacheSize([<chip_idx>,] <size> <KB|MB|GB>)";
+string cacheSizeError = "Error: Usage is: L*CacheSize([<chip_idx>,] <size> <KB|MB|GB>)";
+string blockSizeError = "Error: Usage is: L*BlockSize(<size> <B|KB>)";
 string cacheAccessSpeedError = "Error: Usage is: cacheAccessSpeed([<chip_idx>,] <size> <us|ns>)";
 
 ulong getCacheSize(string size)
@@ -33,6 +34,18 @@ ulong getCacheSize(string size)
 			throw invalid_argument(cacheSizeError);			
 	}	
 	return cacheSize;	
+}
+
+ulong getBlockSize(string size)
+{
+	vector<string> blockSizeStr = parseSize(size);
+	ulong blockSize = strtoul(blockSizeStr[0].c_str(), NULL, 0);
+
+	if(blockSizeStr[1] == "KB")
+		blockSize <<= 10;
+	else if(blockSizeStr[1] != "B")
+		throw invalid_argument(blockSizeError);
+	return blockSize;
 }
 
 template<class T>
@@ -86,7 +99,7 @@ ulong getCacheAccessSpeed(string size)
 
 bool Config::isInit(string command)
 {
-	vector<string> commands {"cacheLineSize", "cacheSize", "cacheAccessSpeed", "replacementSpeed", "broadcastSpeed", "memoryAccessSpeed"};
+	vector<string> commands {"L1CacheSize", "L1BlockSize", "L2CacheSize", "L2BlockSize", "L3CacheSize", "L3BlockSize", "cacheLineSize", "cacheSize", "cacheAccessSpeed", "replacementSpeed", "broadcastSpeed", "memoryAccessSpeed"};
 	for(size_t i = 0; i < commands.size(); i++)
 	{
 		if(command == commands[i])
@@ -206,6 +219,19 @@ void Config::initialize(int argc,char *argv[]) {
 				throw invalid_argument(cacheSizeError);
 			}
 		}
+
+		else if(command == "L1CacheSize")
+			L1CacheSize = getCacheSize(arguments[0]);
+		else if(command == "L1BlockSize")
+			L1BlockSize = getBlockSize(arguments[0]);
+		else if(command == "L2CacheSize")
+			L2CacheSize = getCacheSize(arguments[0]);
+		else if(command == "L2BlockSize")
+			L2BlockSize = getBlockSize(arguments[0]);
+		else if(command == "L3CacheSize")
+			L3CacheSize = getCacheSize(arguments[0]);
+		else if(command == "L3BlockSize")
+			L3BlockSize = getBlockSize(arguments[0]);
 			
 		else if(command == "cacheAccessSpeed")
 		{
@@ -250,9 +276,9 @@ void Config::initialize(int argc,char *argv[]) {
 	}
 	
 	//TODO: check to make sure inits are non-zero
-	if(cacheLineSize == 0 || replacementSpeed == 0 || broadcastSpeed == 0 || memoryAccessSpeed == 0)
+	if(replacementSpeed == 0 || broadcastSpeed == 0 || memoryAccessSpeed == 0)
 		throw invalid_argument("Error: Detected missing or zero initialized argument");
 	checkArray(numCores, numChips);
-	checkArray(cacheSizes, numChips);
+	//checkArray(cacheSizes, numChips);
 	checkArray(cacheAccessSpeeds, numChips);
 }

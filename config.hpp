@@ -19,6 +19,13 @@ public:
 	ulong* cacheSizes;
 	ulong* cacheAccessSpeeds;
 
+	ulong L1CacheSize = 0;
+	ulong L1BlockSize = 0;
+	ulong L2CacheSize = 0;
+	ulong L2BlockSize = 0;
+	ulong L3CacheSize = 0;
+	ulong L3BlockSize = 0;
+
 	void initialize(int argc,char *argv[]);
 
 private:
