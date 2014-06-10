@@ -7,13 +7,13 @@
 class SimpleCache : public Cache
 {
 public:
-	std::map<ulong, page*> pageTable;
+	std::map<ulong, page> pageTable;
 	SimpleCache(ulong cacheSize, ulong blockSize) : Cache(cacheSize, blockSize) {}
 	
-	void onMiss(ulong )	{}
-	void onHit(ulong ) {}
+	virtual void onMiss(ulong )	{}
+	virtual void onHit(ulong ) {}
 	
-	void handleEviction(Cache *upperCache, Cache *lowerCache, page replacedPage)
+	void handleEviction(Cache *upperCache, Cache *lowerCache, page& replacedPage)
 	{
 		if(replacedPage.state == 'M')
 		{
@@ -30,7 +30,7 @@ public:
 
 	bool replace(ulong address, cacheState state)
 	{
-		if(pageTable.find(address) == pageTable.end() || pageTable[address]->state == INVALID)
+		if(pageTable.find(address) == pageTable.end() || pageTable[address].state == INVALID)
 		{
 			//not currently in the cache
 			missCount++;
@@ -46,13 +46,13 @@ public:
 		}
 	}
 
-	void read(ulong address)
+	virtual void read(ulong address)
 	{
 		readCount++;
 		replace(address, CLEAN);
 	}
 
-	void write(ulong address)
+	virtual void write(ulong address)
 	{
 		writeCount++;
 		replace(address, MESSY);
@@ -62,7 +62,7 @@ public:
 class RandomCache : public SimpleCache
 {
 private:
-	std::vector<page*> pageVector;
+	std::vector<page> pageVector;
 
 public:
 	RandomCache(ulong cacheSize, ulong blockSize) : SimpleCache(cacheSize, blockSize)
@@ -72,16 +72,15 @@ public:
 
 	void evict(ulong index)
 	{
-		page *replacedPage = pageVector[index];
-		pageVector[index] = NULL; //no need to erase from the vector; this is a swap
-		pageTable.erase(replacedPage->addr);		
-		handleEviction(upperCache, lowerCache, *replacedPage);		
-		delete replacedPage;
+		page replacedPage = pageVector[index];
+		//no need to erase from the vector; this is a swap
+		pageTable.erase(replacedPage.addr);		
+		handleEviction(upperCache, lowerCache, replacedPage);		
 	}
 
 	void insert(ulong address, cacheState state)
 	{
-		page *newPage = new page(address, state);
+		page newPage(address, state);
 		pageTable[address] = newPage;
 
 		if(cacheSize_ == currentSize_)
@@ -101,23 +100,22 @@ public:
 class FIFOCache : public SimpleCache
 {
 private:
-	std::queue<page*> pageQueue;
+	std::queue<page> pageQueue;
 
 public:
 	FIFOCache(ulong cacheSize, ulong blockSize) : SimpleCache(cacheSize, blockSize) {}
 
 	void evict(ulong )
 	{
-		page *replacedPage = pageQueue.front();
+		page replacedPage = pageQueue.front();
 		pageQueue.pop();		
-		pageTable.erase(replacedPage->addr);		
-		handleEviction(upperCache, lowerCache, *replacedPage);		
-		delete replacedPage;
+		pageTable.erase(replacedPage.addr);		
+		handleEviction(upperCache, lowerCache, replacedPage);		
 	}
 
 	void insert(ulong address, cacheState state)
 	{
-		page *newPage = new page(address, state);
+		page newPage(address, state);
 		pageTable[address] = newPage;
 
 		if(cacheSize_ == currentSize_)
