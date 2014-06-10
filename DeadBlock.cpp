@@ -16,7 +16,7 @@ public:
 		if (accessCounter.find(address) != accessCounter.end())
 		{
 			accessCounter[address]++;
-			if(accessCounter[address] == 4)
+			if(accessCounter[address] == (MaxMiss+1))
 				return; //blocks is now dead
 		}
 		else
@@ -27,8 +27,11 @@ public:
 
 	void onHit(ulong address, cacheState state)
 	{
-		if (accessCounter.find(address) != accessCounter.end()) 
-			accessCounter[address]--;
+		if (accessCounter.find(address) != accessCounter.end())
+		{
+			if (accessCounter[address] > 0) 
+				accessCounter[address]--;
+		}
 		else
 			accessCounter[address] = 0;	
 		LRUCache::onHit(address, state);
