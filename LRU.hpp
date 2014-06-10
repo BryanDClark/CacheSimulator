@@ -34,7 +34,7 @@ public:
 		hitCount++;
 	}
 	
-	virtual void handleEviction(Cache *upperCache, Cache *lowerCache, page replacedPage)
+	virtual void handleEviction(Cache *upperCache, Cache* , page replacedPage)
 	{
 		if(replacedPage.state == 'M')
 		{
@@ -51,9 +51,9 @@ public:
 	page evict(ulong address)
 	{
 		pageNode *replacedPage = pageTable[address];
+		page test = replacedPage->thisPage;
 		pageTable.erase(replacedPage->thisPage.addr);
 		page returnPage = replacedPage->thisPage;	
-		
 		if(pageTail == pageHead)
 		{
 			pageHead=NULL;
@@ -84,7 +84,6 @@ public:
 		pageNode *newPage = new pageNode(address, state);
 		newPage->next = pageHead;
 		pageTable[address] = newPage;
-		//std::cout << "total: " << cacheSize_ << ", current: " << currentSize_ << std::endl;
 		if(cacheSize_ == currentSize_)
 		{
 			//something has to be replaced

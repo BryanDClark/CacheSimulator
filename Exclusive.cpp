@@ -7,14 +7,13 @@ class L1Exclusive : public LRUCache
 {
 public:
 	L1Exclusive(ulong cacheSize, ulong blockSize) : LRUCache(cacheSize, blockSize) {}
-	void handleEviction(Cache *upperCache, Cache *lowerCache, page replacedPage)
+	void handleEviction(Cache *upperCache, Cache *, page replacedPage)
 	{
 		//evictions from L1 are put in L2, which will always have space
 		upperCache->insert(replacedPage.addr, replacedPage.state);
 	}
 	void read(ulong address)
 	{
-		//std::cout << "L1 read" << std::endl;
 		if(!inCache(address))
 		{
 			missCount++;
@@ -96,8 +95,11 @@ public:
 		//for prefetch, we grab the next cache line to prepare for L1
 		if(cacheFound)
 		{
-			upperCache->read(address+blockSize_);
-			insert(address+blockSize_, CLEAN);
+			if(!inCache(address+blockSize_) && !lowerCache->inCache(address+blockSize_))
+			{
+				upperCache->read(address+blockSize_);
+				insert(address+blockSize_, CLEAN);
+			}
 		}
 	}
 };

@@ -17,7 +17,7 @@ int main(int argc,char *argv[])
 	config.initialize(argc, argv);
 	ulong blockSize = 512;
 	L1Exclusive L1 = L1Exclusive(config.L1CacheSize / blockSize, blockSize);
-	L2Exclusive L2 = L2Exclusive(config.L2CacheSize / blockSize, blockSize);
+	L2ExclusivePrefetch L2 = L2ExclusivePrefetch(config.L2CacheSize / blockSize, blockSize);
 	DeadBlockLRUCache L3 = DeadBlockLRUCache(config.L3CacheSize / blockSize, blockSize);
 	Memory memory = Memory();
 	L1.setUpperCache(&L2);

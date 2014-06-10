@@ -29,7 +29,7 @@ public:
 	Cache *upperCache;
 	Cache *lowerCache;
 	Cache() : hitCount(0), missCount(0), readCount(0), writeCount(0) {}
-	Cache(ulong cacheSize, ulong blockSize) : cacheSize_(cacheSize), blockSize_(blockSize), hitCount(0), missCount(0), readCount(0), writeCount(0), currentSize_(0) {}
+	Cache(ulong cacheSize, ulong blockSize) : cacheSize_(cacheSize), blockSize_(blockSize), currentSize_(0), hitCount(0), missCount(0), readCount(0), writeCount(0) {}
 	
 	void setUpperCache(Cache *cache)
 	{
