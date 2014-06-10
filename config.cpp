@@ -99,7 +99,7 @@ ulong getCacheAccessSpeed(string size)
 
 bool Config::isInit(string command)
 {
-	vector<string> commands {"L1CacheSize", "L1BlockSize", "L2CacheSize", "L2BlockSize", "L3CacheSize", "L3BlockSize", "cacheLineSize", "cacheSize", "cacheAccessSpeed", "replacementSpeed", "broadcastSpeed", "memoryAccessSpeed"};
+	vector<string> commands {"L1CacheSize", "L1BlockSize", "L2CacheSize", "L2BlockSize", "L3CacheSize", "L3BlockSize", "blockSize", "cacheLineSize", "cacheSize", "cacheAccessSpeed", "replacementSpeed", "broadcastSpeed", "memoryAccessSpeed"};
 	for(size_t i = 0; i < commands.size(); i++)
 	{
 		if(command == commands[i])
@@ -108,7 +108,8 @@ bool Config::isInit(string command)
 	return false;
 }
 
-void Config::initialize(int argc,char *argv[]) {
+void Config::initialize(int argc,char *argv[], bool skipPreamble) 
+{
 	string configFilePath = "config.txt";
 	//assume this is the file config
 	if (argc == 2)
@@ -119,63 +120,67 @@ void Config::initialize(int argc,char *argv[]) {
 		throw invalid_argument("Error: Configuration file could not be opened.");
 
 	string command = getUntilDelim(configFile, '(');
-	string argument = getUntilDelim(configFile, ')');
-	
-	vector<string> arguments = parseSize(argument);
+	vector<string> arguments;
 
-	if(command != "memorySize")
-		throw invalid_argument("Error: First command must be \"memorySize()\"");
-	if(arguments.size() != 2 || (arguments[1] != "MB" && arguments[1] != "GB" && arguments[1] != "KB"))
-		throw invalid_argument("Error: Usage is \"memorySize(<size> <KB|MB|GB>)\"");
+	if (!skipPreamble)
+	{
+		string argument = getUntilDelim(configFile, ')');
+		arguments = parseSize(argument);
+
+		if(command != "memorySize")
+			throw invalid_argument("Error: First command must be \"memorySize()\"");
+		if(arguments.size() != 2 || (arguments[1] != "MB" && arguments[1] != "GB" && arguments[1] != "KB"))
+			throw invalid_argument("Error: Usage is \"memorySize(<size> <KB|MB|GB>)\"");
+			
+		memSize = strtoul(arguments[0].c_str(), NULL, 0) << 10;
+		if(arguments[1] == "MB")
+			memSize <<= 10;	
+		else if(arguments[1] == "GB")
+			memSize <<= 20;	
 		
-	memSize = strtoul(arguments[0].c_str(), NULL, 0) << 10;
-	if(arguments[1] == "MB")
-		memSize <<= 10;	
-	else if(arguments[1] == "GB")
-		memSize <<= 20;	
-	
-	command = getUntilDelim(configFile, '(');
-	if(command != "numOfChips" && command != "numOfCores")
-		throw invalid_argument("Error: Second command must be numOfChips() or numOfCores()");
-	if(command == "numOfChips")
-	{
-		argument = getUntilDelim(configFile, ')');
-		numChips = strtoul(argument.c_str(), NULL, 0);		
 		command = getUntilDelim(configFile, '(');
-	}
-	else
-	{
-		numChips = 1;
-	}
-	
-	numCores = new ulong[numChips];
-	cacheSizes = new ulong[numChips];
-	cacheAccessSpeeds = new ulong[numChips];
-	
-	for(ulong i = 0; i < numChips; i++)
-	{
-		if(command != "numOfCores")
-			throw invalid_argument("Error: Expected numOfCores()");
-		arguments = splitUntilDelim(configFile, ',', ')');
-		if(arguments.size() == 1)
+		if(command != "numOfChips" && command != "numOfCores")
+			throw invalid_argument("Error: Second command must be numOfChips() or numOfCores()");
+		if(command == "numOfChips")
 		{
-			//all chips have same core #
-			for(ulong j = 0; j < numChips; j++)
-			{
-				numCores[j] = strtoul(arguments[0].c_str(), NULL, 0);
-			}
-			i = numChips; // end loop
-		}
-		else if(arguments.size() == 2)
-		{
-			ulong core = strtoul(arguments[0].c_str(), NULL, 0);
-			numCores[core] = strtoul(arguments[1].c_str(), NULL, 0);
+			argument = getUntilDelim(configFile, ')');
+			numChips = strtoul(argument.c_str(), NULL, 0);		
+			command = getUntilDelim(configFile, '(');
 		}
 		else
 		{
-			throw invalid_argument("Error: Usage is: numOfCores([<chip_idx>,] <size>)");
+			numChips = 1;
 		}
-		command = getUntilDelim(configFile, '(');
+		
+		numCores = new ulong[numChips];
+		cacheSizes = new ulong[numChips];
+		cacheAccessSpeeds = new ulong[numChips];
+		
+		for(ulong i = 0; i < numChips; i++)
+		{
+			if(command != "numOfCores")
+				throw invalid_argument("Error: Expected numOfCores()");
+			arguments = splitUntilDelim(configFile, ',', ')');
+			if(arguments.size() == 1)
+			{
+				//all chips have same core #
+				for(ulong j = 0; j < numChips; j++)
+				{
+					numCores[j] = strtoul(arguments[0].c_str(), NULL, 0);
+				}
+				i = numChips; // end loop
+			}
+			else if(arguments.size() == 2)
+			{
+				ulong core = strtoul(arguments[0].c_str(), NULL, 0);
+				numCores[core] = strtoul(arguments[1].c_str(), NULL, 0);
+			}
+			else
+			{
+				throw invalid_argument("Error: Usage is: numOfCores([<chip_idx>,] <size>)");
+			}
+			command = getUntilDelim(configFile, '(');
+		}
 	}
 	
 	while(isInit(command))
@@ -219,19 +224,6 @@ void Config::initialize(int argc,char *argv[]) {
 				throw invalid_argument(cacheSizeError);
 			}
 		}
-
-		else if(command == "L1CacheSize")
-			L1CacheSize = getCacheSize(arguments[0]);
-		else if(command == "L1BlockSize")
-			L1BlockSize = getBlockSize(arguments[0]);
-		else if(command == "L2CacheSize")
-			L2CacheSize = getCacheSize(arguments[0]);
-		else if(command == "L2BlockSize")
-			L2BlockSize = getBlockSize(arguments[0]);
-		else if(command == "L3CacheSize")
-			L3CacheSize = getCacheSize(arguments[0]);
-		else if(command == "L3BlockSize")
-			L3BlockSize = getBlockSize(arguments[0]);
 			
 		else if(command == "cacheAccessSpeed")
 		{
@@ -271,14 +263,33 @@ void Config::initialize(int argc,char *argv[]) {
 		else if(command == "memoryAccessSpeed")
 		{
 			memoryAccessSpeed = parseSpeed(arguments, command);
-		}			
+		}
+
+		else if(command == "L1CacheSize")
+			L1CacheSize = getCacheSize(arguments[0]);
+		else if(command == "L1BlockSize")
+			L1BlockSize = getBlockSize(arguments[0]);
+		else if(command == "L2CacheSize")
+			L2CacheSize = getCacheSize(arguments[0]);
+		else if(command == "L2BlockSize")
+			L2BlockSize = getBlockSize(arguments[0]);
+		else if(command == "L3CacheSize")
+			L3CacheSize = getCacheSize(arguments[0]);
+		else if(command == "L3BlockSize")
+			L3BlockSize = getBlockSize(arguments[0]);
+		else if(command == "blockSize")
+			blockSize = getBlockSize(arguments[0]);
+		
 		command = getUntilDelim(configFile, '(');
 	}
 	
-	//TODO: check to make sure inits are non-zero
-	if(replacementSpeed == 0 || broadcastSpeed == 0 || memoryAccessSpeed == 0)
-		throw invalid_argument("Error: Detected missing or zero initialized argument");
-	checkArray(numCores, numChips);
-	//checkArray(cacheSizes, numChips);
-	checkArray(cacheAccessSpeeds, numChips);
+	if (!skipPreamble)
+	{
+		//TODO: check to make sure inits are non-zero
+		if(replacementSpeed == 0 || broadcastSpeed == 0 || memoryAccessSpeed == 0)
+			throw invalid_argument("Error: Detected missing or zero initialized argument");
+		checkArray(numCores, numChips);
+		checkArray(cacheSizes, numChips);
+		checkArray(cacheAccessSpeeds, numChips);
+	}
 }
