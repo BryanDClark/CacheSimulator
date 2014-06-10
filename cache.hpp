@@ -20,7 +20,7 @@ public:
 	ulong cacheSize_;
 	ulong blockSize_;
 	ulong currentSize_;
-	ulong hitCount, missCount, readCount, writeCount, memWriteCount, memReadCount;
+	ulong hitCount, missCount, readCount, writeCount;
 	Cache *upperCache;
 	Cache *lowerCache;
 	Cache(ulong cacheSize, ulong blockSize) : cacheSize_(cacheSize), blockSize_(blockSize) {}
@@ -35,7 +35,7 @@ public:
 	}
 	virtual bool inCache(ulong ){return false;}
 	virtual void insert(ulong , cacheState ) {}
-	virtual void evict(ulong ) {}
+	virtual page evict(ulong ) {return page();}
 	virtual void read(ulong ) {}
 	virtual void write(ulong ) {}	
 	virtual void instruction_fetch(ulong ) {} //this may be unused

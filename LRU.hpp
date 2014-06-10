@@ -36,10 +36,7 @@ public:
 		if(replacedPage.state == 'M')
 		{
 			//messy state, need to writeback
-			if(upperCache)
-				upperCache->write(replacedPage.addr);
-			else
-				memWriteCount++;		
+			upperCache->write(replacedPage.addr);
 		}		
 
 	}
@@ -48,11 +45,11 @@ public:
 	{
 		return pageTable.find(address) == pageTable.end();
 	}
-	void evict(ulong address)
+	page evict(ulong address)
 	{
 		pageNode *replacedPage = pageTable[address];
 		pageTable.erase(replacedPage->thisPage.addr);
-		handleEviction(upperCache, lowerCache, replacedPage->thisPage);		
+		page returnPage = replacedPage->thisPage;	
 		
 		if(replacedPage == pageTail)
 		{
@@ -71,6 +68,7 @@ public:
 		}
 		currentSize_--;
 		delete replacedPage;
+		return returnPage;
 	}
 	
 	virtual void insert(ulong address, cacheState state)
@@ -82,7 +80,8 @@ public:
 		if(cacheSize_ == currentSize_)
 		{
 			//something has to be replaced
-			evict(pageTail->thisPage.addr);	
+			page victim = evict(pageTail->thisPage.addr);
+			handleEviction(upperCache, lowerCache, victim);
 			pageHead->prev = newPage;
 			pageHead = newPage;		
 		}

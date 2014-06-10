@@ -45,14 +45,10 @@ public:
 	L2Exclusive(ulong cacheSize, ulong blockSize) : LRUCache(cacheSize, blockSize) {}
 	void read(ulong address)
 	{
-		if(pageTable.find(address) == pageTable.end())
+		if(!inCache(address))
 		{
-			//if there is an upper cache defined, call its read, otherwise, read from memory
-			//Maybe it would be better if main memory were a special case of Cache?
-			if(upperCache)
-				upperCache->read(address);
-			else
-				memReadCount++;
+			//read from next level
+			upperCache->read(address);
 			replace(address, CLEAN);
 		}
 		else
