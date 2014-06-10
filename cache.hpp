@@ -33,6 +33,7 @@ public:
 	{
 		lowerCache = cache;
 	}
+	virtual bool inCache(ulong ){return false;}
 	virtual void insert(ulong , cacheState ) {}
 	virtual void evict(ulong ) {}
 	virtual void read(ulong ) {}

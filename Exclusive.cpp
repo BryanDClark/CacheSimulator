@@ -12,7 +12,7 @@ public:
 	}
 	void read(ulong address)
 	{
-		if(pageTable.find(address) == pageTable.end())
+		if(!inCache(address))
 		{
 			missCount++;
 			upperCache->read(address);			
@@ -25,7 +25,7 @@ public:
 	}
 	void write(ulong address)
 	{
-		if(pageTable.find(address) == pageTable.end())
+		if(!inCache(address))
 		{
 			missCount++;
 			upperCache->write(address);

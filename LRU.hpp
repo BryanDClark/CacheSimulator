@@ -21,8 +21,15 @@ public:
 	std::map<ulong, pageNode*> pageTable;
 	LRUCache(ulong cacheSize, ulong blockSize) : Cache(cacheSize, blockSize), pageHead(NULL), pageTail(NULL) {}
 	
-	virtual void onMiss(ulong )	{}
-	virtual void onHit(ulong ) {}
+	virtual void onMiss(ulong address, cacheState state)	
+	{
+		missCount++;
+		insert(address, state);
+	}
+	virtual void onHit(ulong ) 
+	{
+		hitCount++;
+	}
 	
 	virtual void handleEviction(Cache *upperCache, Cache *lowerCache, page replacedPage)
 	{
@@ -36,7 +43,11 @@ public:
 		}		
 
 	}
-
+	
+	bool inCache(ulong address)
+	{
+		return pageTable.find(address) == pageTable.end();
+	}
 	void evict(ulong address)
 	{
 		pageNode *replacedPage = pageTable[address];
@@ -57,7 +68,8 @@ public:
 		{
 			replacedPage->prev->next = replacedPage->next;
 			replacedPage->next->prev = replacedPage->prev;
-		}		
+		}
+		currentSize_--;
 		delete replacedPage;
 	}
 	
@@ -84,22 +96,19 @@ public:
 			{
 				pageHead->prev = newPage;
 				pageHead = newPage;	
-			}				
+			}
 		}
+		currentSize_++;
 	}
-	bool replace(ulong address, cacheState state)
+	void replace(ulong address, cacheState state)
 	{
-		if(pageTable.find(address) == pageTable.end() || pageTable[address]->thisPage.state == INVALID)
+		if(!inCache(address) || pageTable[address]->thisPage.state == INVALID)
 		{
 			//not currently in the cache
-			missCount++;
-			onMiss(address);
-			insert(address, state);
-			return false;
+			onMiss(address, state);
 		}
 		else
 		{
-			hitCount++;
 			onHit(address);
 			pageNode *accessedPage = pageTable[address];
 			if(accessedPage != pageHead)
@@ -118,8 +127,6 @@ public:
 				pageHead->prev = accessedPage;
 				pageHead = accessedPage;
 			}
-			
-			return true;
 		}
 	}
 	virtual void read(ulong address)
