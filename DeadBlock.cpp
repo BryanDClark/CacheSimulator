@@ -41,6 +41,7 @@ public:
 
 	void read(ulong address)
 	{
+		//std::cout << "L3 read" << std::endl;
 		if (isDeadBlock(address))
 			upperCache->read(address);
 		else
@@ -48,6 +49,7 @@ public:
 	}
 	void write(ulong address)
 	{
+		//std::cout << "L3 write" << std::endl;
 		if (isDeadBlock(address))
 			upperCache->write(address);
 		else

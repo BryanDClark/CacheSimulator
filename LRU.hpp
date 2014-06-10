@@ -46,7 +46,7 @@ public:
 	
 	bool inCache(ulong address)
 	{
-		return pageTable.find(address) == pageTable.end();
+		return pageTable.find(address) != pageTable.end();
 	}
 	page evict(ulong address)
 	{
@@ -54,7 +54,12 @@ public:
 		pageTable.erase(replacedPage->thisPage.addr);
 		page returnPage = replacedPage->thisPage;	
 		
-		if(replacedPage == pageTail)
+		if(pageTail == pageHead)
+		{
+			pageHead=NULL;
+			pageTail=NULL;
+		}
+		else if(replacedPage == pageTail)
 		{
 			pageTail->prev->next = NULL;
 			pageTail = pageTail->prev;
@@ -79,7 +84,7 @@ public:
 		pageNode *newPage = new pageNode(address, state);
 		newPage->next = pageHead;
 		pageTable[address] = newPage;
-
+		//std::cout << "total: " << cacheSize_ << ", current: " << currentSize_ << std::endl;
 		if(cacheSize_ == currentSize_)
 		{
 			//something has to be replaced
@@ -107,11 +112,14 @@ public:
 		if(!inCache(address) || pageTable[address]->thisPage.state == INVALID)
 		{
 			//not currently in the cache
+			//std::cout << "onMiss" << std::endl;
 			onMiss(address, state);
 		}
 		else
 		{
+			//std::cout << "beforehit" << std::endl;
 			onHit(address, state);
+			//std::cout << "afterhit" << std::endl;
 			pageNode *accessedPage = pageTable[address];
 			if(accessedPage != pageHead)
 			{
@@ -134,6 +142,8 @@ public:
 	virtual void read(ulong address)
 	{
 		readCount++;
+		if(!inCache(address))
+			upperCache->read(address);
 		replace(address, CLEAN);
 	}
 	virtual void write(ulong address)

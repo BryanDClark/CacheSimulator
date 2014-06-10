@@ -14,6 +14,7 @@ public:
 	}
 	void read(ulong address)
 	{
+		//std::cout << "L1 read" << std::endl;
 		if(!inCache(address))
 		{
 			missCount++;
@@ -27,8 +28,10 @@ public:
 	}
 	void write(ulong address)
 	{
+		//std::cout << "L1 write" << std::endl;
 		if(!inCache(address))
 		{
+			//std::cout << "miss?" << std::endl;
 			missCount++;
 			upperCache->write(address);
 		}
@@ -47,6 +50,7 @@ public:
 	L2Exclusive(ulong cacheSize, ulong blockSize) : LRUCache(cacheSize, blockSize) {}
 	virtual void read(ulong address)
 	{
+		//std::cout << "L2 read" << std::endl;
 		if(!inCache(address))
 		{
 			//read from next level
@@ -56,13 +60,15 @@ public:
 		else
 		{
 			readCount++;
+			hitCount++;
 			evict(address);
 			lowerCache->insert(address, CLEAN);
 		}
 	}
 	virtual void write(ulong address)
 	{
-		if(pageTable.find(address) == pageTable.end())
+		//std::cout << "L2 write" << std::endl;
+		if(!inCache(address))
 		{
 			writeCount++;
 			replace(address, MESSY);
@@ -70,7 +76,10 @@ public:
 		}
 		else
 		{
+			//std::cout << "in L2" << std::endl;
 			evict(address);
+			hitCount++;
+			//std::cout << "after evict" << std::endl;
 			lowerCache->insert(address, MESSY);
 		}
 	}
