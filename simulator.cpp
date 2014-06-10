@@ -16,9 +16,9 @@ int main(int argc,char *argv[])
 	Config config;
 	config.initialize(argc, argv);
 	
-	Cache L1 = L1Exclusive(config.L1CacheSize, config.L1BlockSize);
-	Cache L2 = L2Exclusive(config.L2CacheSize, config.L2BlockSize);
-	Cache L3 = DeadBlockLRUCache(config.L3CacheSize, config.L3BlockSize);
+	Cache L1 = L1Exclusive(config.L1CacheSize, config.cacheLineSize);
+	Cache L2 = L2Exclusive(config.L2CacheSize, config.cacheLineSize);
+	Cache L3 = DeadBlockLRUCache(config.L3CacheSize, config.cacheLineSize);
 	Cache memory = Memory();
 	L1.setUpperCache(&L2);
 	L2.setUpperCache(&L3);
