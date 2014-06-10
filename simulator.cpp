@@ -15,10 +15,10 @@ int main(int argc,char *argv[])
 	//initialize the simulator
 	Config config;
 	config.initialize(argc, argv);
-	
-	Cache L1 = L1Exclusive(config.L1CacheSize, config.cacheLineSize);
-	Cache L2 = L2Exclusive(config.L2CacheSize, config.cacheLineSize);
-	Cache L3 = DeadBlockLRUCache(config.L3CacheSize, config.cacheLineSize);
+	ulong blockSize = config.L1BlockSize;
+	Cache L1 = L1Exclusive(config.L1CacheSize, config.L1BlockSize);
+	Cache L2 = L2Exclusive(config.L2CacheSize, config.L2BlockSize);
+	Cache L3 = DeadBlockLRUCache(config.L3CacheSize, config.L3BlockSize);
 	Cache memory = Memory();
 	L1.setUpperCache(&L2);
 	L2.setUpperCache(&L3);
@@ -28,10 +28,11 @@ int main(int argc,char *argv[])
 	
 	while(cin >> dec >> cmd >> hex >> address)
 	{
+		ulong lineAddress = (address / blockSize) * blockSize;
 		switch(cmd)
 		{
-			case 0: L1.read(address);
-			case 1: L1.write(address);
+			case 0: L1.read(lineAddress);
+			case 1: L1.write(lineAddress);
 		}
 	}
 }

@@ -1,7 +1,7 @@
 memorySize(1GB)
 numOfCores(2)
 L1CacheSize(16KB)
-L2CacheSize(32KB)
+L2CacheSize(16KB)
 L3CacheSize(64KB)
 cacheLineSize(512B)
 cacheAccessSpeed(2ns)
