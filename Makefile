@@ -4,5 +4,7 @@ debug:	cacheCoherence.cpp
 	g++ -Wall -Wextra -pedantic -std=c++0x -g -o P2 config.cpp cacheCoherence.cpp
 project:
 	g++ -Wall -Wextra -pedantic -std=c++0x Exclusive.cpp
+deadblock:
+	g++ -Wall -Wextra -pedantic -std=c++0x DeadBlock.cpp
 clean:
 	rm -f *.o *~ P2 core

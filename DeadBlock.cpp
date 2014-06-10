@@ -6,11 +6,11 @@ using namespace std;
 class DeadBlockLRUCache : public LRUCache
 {
 public:
-	const unsigned int MaxMiss = 3;
+	static const unsigned int MaxMiss = 3;
 	std::map<ulong, ulong> accessCounter;
 	DeadBlockLRUCache(ulong cacheSize, ulong blockSize) : LRUCache(cacheSize, blockSize) {}
 
-	void onMiss(ulong address)
+	void onMiss(ulong address, cacheState state)
 	{
 		if (accessCounter.find(address) != accessCounter.end())
 		{
@@ -21,16 +21,16 @@ public:
 		else
 			accessCounter[address] = 1;
 			
-		LRUCache::onMiss(address);
+		LRUCache::onMiss(address, state);
 	}
 
-	void onHit(ulong address)
+	void onHit(ulong address, cacheState state)
 	{
 		if (accessCounter.find(address) != accessCounter.end()) 
 			accessCounter[address]--;
 		else
 			accessCounter[address] = 0;	
-		LRUCache::onHit(address);
+		LRUCache::onHit(address, state);
 	}
 
 	bool isDeadBlock(ulong address)
@@ -45,7 +45,7 @@ public:
 		else
 			LRUCache::read(address);
 	}
-	void write()
+	void write(ulong address)
 	{
 		if (isDeadBlock(address))
 			upperCache->write(address);
@@ -53,3 +53,6 @@ public:
 			LRUCache::write(address);
 	}
 };
+
+int main()
+{}

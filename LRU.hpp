@@ -16,9 +16,9 @@ class LRUCache : public Cache
 protected:
 	pageNode *pageHead;
 	pageNode *pageTail;
-	
-public:
 	std::map<ulong, pageNode*> pageTable;
+		
+public:
 	LRUCache(ulong cacheSize, ulong blockSize) : Cache(cacheSize, blockSize), pageHead(NULL), pageTail(NULL) {}
 	
 	virtual void onMiss(ulong address, cacheState state)	
@@ -26,7 +26,7 @@ public:
 		missCount++;
 		insert(address, state);
 	}
-	virtual void onHit(ulong ) 
+	virtual void onHit(ulong, cacheState ) 
 	{
 		hitCount++;
 	}
@@ -108,7 +108,7 @@ public:
 		}
 		else
 		{
-			onHit(address);
+			onHit(address, state);
 			pageNode *accessedPage = pageTable[address];
 			if(accessedPage != pageHead)
 			{
