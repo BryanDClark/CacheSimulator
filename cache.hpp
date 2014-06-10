@@ -1,6 +1,8 @@
 #ifndef CACHE
 #define CACHE
 
+#include <iostream>
+
 typedef unsigned long ulong;
 
 enum cacheState {
@@ -26,8 +28,8 @@ public:
 	ulong hitCount, missCount, readCount, writeCount;
 	Cache *upperCache;
 	Cache *lowerCache;
-	Cache(ulong cacheSize, ulong blockSize) : cacheSize_(cacheSize), blockSize_(blockSize) {}
-	Cache() {}
+	Cache() : hitCount(0), missCount(0), readCount(0), writeCount(0) {}
+	Cache(ulong cacheSize, ulong blockSize) : cacheSize_(cacheSize), blockSize_(blockSize) {Cache();}
 	
 	void setUpperCache(Cache *cache)
 	{
@@ -44,5 +46,11 @@ public:
 	virtual void write(ulong ) {}	
 	virtual void instruction_fetch(ulong ) {} //this may be unused
 };
+
+std::ostream& operator<<(std::ostream& stream, const Cache& cache) 
+{
+	stream << "hits: " << cache.hitCount << ", misses: " << cache.missCount << ", reads: " << cache.readCount << ", writes: " << cache.writeCount;
+	return stream;
+}
 
 #endif

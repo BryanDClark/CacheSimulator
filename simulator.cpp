@@ -35,4 +35,9 @@ int main(int argc,char *argv[])
 			case 1: L1.write(lineAddress);
 		}
 	}
+	
+	cout << "L1 " << L1 << endl;
+	cout << "L2 " << L2 << endl;
+	cout << "L3 " << L3 << endl;
+	cout << "Memory " << memory << endl;
 }
