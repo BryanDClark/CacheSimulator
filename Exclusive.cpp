@@ -50,6 +50,7 @@ public:
 	virtual void read(ulong address)
 	{
 		//std::cout << "L2 read" << std::endl;
+		readCount++;
 		if(!inCache(address))
 		{
 			//read from next level
@@ -58,7 +59,6 @@ public:
 		}
 		else
 		{
-			readCount++;
 			hitCount++;
 			evict(address);
 			lowerCache->insert(address, CLEAN);
@@ -95,10 +95,13 @@ public:
 		//for prefetch, we grab the next cache line to prepare for L1
 		if(cacheFound)
 		{
-			if(!inCache(address+blockSize_) && !lowerCache->inCache(address+blockSize_))
+			if(!lowerCache->inCache(address+blockSize_))
 			{
-				upperCache->read(address+blockSize_);
-				insert(address+blockSize_, CLEAN);
+				if(!inCache(address+blockSize_))
+				{
+					upperCache->read(address+blockSize_);
+				}
+				replace(address+blockSize_, CLEAN);
 			}
 		}
 	}
