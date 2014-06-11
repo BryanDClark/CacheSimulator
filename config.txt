@@ -1,4 +1,4 @@
 blockSize(512B)
-L1CacheSize(2KB)
-L2CacheSize(2KB)
+L1CacheSize(8KB)
+L2CacheSize(8KB)
 L3CacheSize(8KB)

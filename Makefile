@@ -1,8 +1,4 @@
-all:	cacheCoherence.cpp 
-	g++ -O3 -std=c++0x -o P2 config.cpp cacheCoherence.cpp -s 
-debug:	cacheCoherence.cpp
-	g++ -Wall -Wextra -pedantic -std=c++0x -g -o P2 config.cpp cacheCoherence.cpp
-project:
+all:	
 	g++ -Wall -Wextra -pedantic -std=c++0x -o simulator config.cpp simulator.cpp
 clean:
-	rm -f *.o *~ P2 core
+	rm -f *.o *~ simulator core
