@@ -51,7 +51,6 @@ public:
 	page evict(ulong address)
 	{
 		pageNode *replacedPage = pageTable[address];
-		page test = replacedPage->thisPage;
 		pageTable.erase(replacedPage->thisPage.addr);
 		page returnPage = replacedPage->thisPage;	
 		if(pageTail == pageHead)
