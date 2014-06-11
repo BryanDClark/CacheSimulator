@@ -100,6 +100,11 @@ public:
 				if(!inCache(address+blockSize_))
 				{
 					upperCache->read(address+blockSize_);
+					missCount--;
+				}
+				else
+				{
+					hitCount--;
 				}
 				replace(address+blockSize_, CLEAN);
 			}
