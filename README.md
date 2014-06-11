@@ -1,5 +1,8 @@
 CacheSimulator
 ==============
+This program is a cache simulator which simulates 3 levels of caches on a single processor, using an inheritable Cache class. It is easily extensible to plug different caching algorithms or different block sizes.
+This program only simulates data cache access. Instruction fetches are typically implemented as a seperate cache and don't vary much.
+
 To build the program, simply type "make" in the terminal.
 
 To run the program, use: simulator (configFile) < (inputFile)
